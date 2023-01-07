@@ -1,32 +1,38 @@
 package casa.proyectoedd2p;
 
 import clases.Tree;
+import java.util.LinkedList;
 import javafx.fxml.FXML;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
+import javafx.geometry.Pos;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 
 public class PrimaryController {
 
     @FXML
-    private HBox explorador;
+    private VBox explorador;
 
     @FXML
     private void switchToSecondary() {
-        Tree<Double> directorio = new Tree<>(600.0);
-        directorio.getRoot().addChild(200.0);
-        directorio.getRoot().addChild(100.0);
-        directorio.getRoot().addChild(300.0);
-//        directorio.getRoot().getChildren().get(0).getRoot().addChild(100.0);
-//        directorio.getRoot().getChildren().get(0).getRoot().addChild(100.0);
-//        directorio.getRoot().getChildren().get(0).getRoot().getChildren().get(1).getRoot().addChild(75.0);
-//        directorio.getRoot().getChildren().get(0).getRoot().getChildren().get(1).getRoot().addChild(25.0);
+        Tree<Double> directorio = new Tree<>(8.);
+        directorio.getRoot().addChild(4.0);
+        directorio.getRoot().addChild(2.0);
+        directorio.getRoot().addChild(2.0);
+        directorio.getRoot().getChildren().get(0).getRoot().addChild(3.0);
+        directorio.getRoot().getChildren().get(0).getRoot().getChildren().get(0).getRoot().addChild(2.0);
+        directorio.getRoot().getChildren().get(0).getRoot().getChildren().get(0).getRoot().addChild(1.0);
+        directorio.getRoot().getChildren().get(0).getRoot().addChild(1.0);
+        directorio.getRoot().getChildren().get(0).getRoot().getChildren().get(1).getRoot().addChild(0.75);
+        directorio.getRoot().getChildren().get(0).getRoot().getChildren().get(1).getRoot().addChild(0.25);
+        
         explorador.getChildren().clear();
-        MapTreeVertical(directorio.getRoot().getContent(), directorio, explorador);
+        StackPane treemap = createTreemap(directorio, 600, 600);
+        explorador.getChildren().add(treemap);
     }
 
-    private String generateRandomColor() {
+    private static String generateRandomColor() {
         String[] letters = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"};
         String color = "#";
         for (int i = 0; i < 6; i++) {
@@ -35,43 +41,41 @@ public class PrimaryController {
         return color;
     }
 
-    public void MapTreeVertical(double pesopadre, Tree<Double> d, Pane cont) {
-        FlowPane v = new FlowPane();
-        v.setStyle("-fx-background-color: " + generateRandomColor() + "; -fx-border-color: #000000; -fx-border-width: 0.5");
-        v.setPrefHeight(calcularsize(cont.getHeight(), pesopadre, d.getRoot().getContent()));
-        v.setPrefWidth(cont.getWidth());
-//        v.setPrefSize(d.getRoot().getContent(), d.getRoot().getContent());
-//        v.setPrefSize(cont.getWidth(), calcularsize(cont.getHeight(), pesopadre, d.getRoot().getContent()));
-        System.out.println("ALTO: " + v.getHeight());
-        cont.getChildren().add(v);
-        if (!d.isLeaf()) {
-            for (Tree<Double> t : d.getRoot().getChildren()) {
-                MapTreeHorizontal(d.getRoot().getContent(), t, v);
+    public static StackPane createTreemap(Tree<Double> directorio, double width, double height) {
+        return createTreemap(directorio, 0, 0, width, height, false);
+    }
+
+    private static StackPane createTreemap(Tree<Double> directorio, double x, double y, double width, double height, boolean rotate) {
+        StackPane stackPane = new StackPane();
+        stackPane.setAlignment(Pos.TOP_LEFT);
+        Rectangle rect = new Rectangle(width, height);
+        Color c = Color.web(generateRandomColor());
+        rect.setFill(c);
+        stackPane.getChildren().add(rect);
+        rect.setTranslateX(x);
+        rect.setTranslateY(y);
+        LinkedList<Tree<Double>> children = directorio.getRoot().getChildren();
+        if (children != null) {
+            int numChildren = children.size();
+            if (numChildren > 0) {
+                if (!rotate) {
+                    for (int i = 0; i < numChildren; i++) {
+                        Tree<Double> child = children.get(i);
+                        double childWidth = (width*child.getRoot().getContent()) / directorio.getRoot().getContent();
+                        stackPane.getChildren().add(createTreemap(child, x, y, childWidth, height,true));
+                        x+=childWidth;
+                    }
+                } else {
+                    for (int i = 0; i < numChildren; i++) {
+                        Tree<Double> child = children.get(i);
+                        double childHeight = (height*child.getRoot().getContent()) / directorio.getRoot().getContent();
+                        stackPane.getChildren().add(createTreemap(child, x, y, width, childHeight, false));
+                        y+=childHeight;
+                    }
+                }
             }
         }
-    }
 
-    public void MapTreeHorizontal(double pesopadre, Tree<Double> d, Pane cont) {
-        FlowPane h = new FlowPane();
-        h.setStyle("-fx-background-color: " + generateRandomColor() + "; -fx-border-color: #000000; -fx-border-width: 0.5");
-        h.setPrefWidth(calcularsize(cont.getHeight(), pesopadre, d.getRoot().getContent()));
-        h.setPrefHeight(cont.getHeight());
-//        h.setPrefSize(d.getRoot().getContent(), d.getRoot().getContent());
-        System.out.println("ANCHO: " + h.getHeight());
-//        h.setPrefSize(calcularsize(cont.getWidth(), pesopadre, d.getRoot().getContent()), cont.getHeight());
-        cont.getChildren().add(h);
-        if (!d.isLeaf()) {
-            for (Tree<Double> t : d.getRoot().getChildren()) {
-                MapTreeVertical(d.getRoot().getContent(), t, h);
-            }
-        }
+        return stackPane;
     }
-
-    private double calcularsize(double lado, double pesopadre, double pesohijo) {
-        double diferencia = pesopadre - pesohijo;
-        double porcentajemenor = diferencia / pesopadre;
-        double porcentajemayor = 1 - porcentajemenor;
-        return lado * porcentajemayor;
-    }
-
 }

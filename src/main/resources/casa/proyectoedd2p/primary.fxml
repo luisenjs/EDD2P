@@ -6,7 +6,6 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
@@ -39,7 +38,7 @@
             <Button fx:id="primaryButton" onAction="#switchToSecondary" text="Buscar" GridPane.columnIndex="3" />
          </children>
       </GridPane>
-      <HBox fx:id="explorador" fillHeight="false" prefHeight="819.0" prefWidth="1294.0" style="-fx-background-color: ffffff;" />
+      <VBox fx:id="explorador" prefHeight="614.0" prefWidth="1000.0" style="-fx-background-color: white;" />
    </children>
    <padding>
       <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
