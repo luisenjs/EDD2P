@@ -33,7 +33,7 @@
                   <Font size="14.0" />
                </font>
             </Label>
-            <Button mnemonicParsing="false" text="Seleccionar ruta" />
+            <Button fx:id="btnPath" mnemonicParsing="false" onAction="#selectPath" text="Seleccionar ruta" />
             <TextField fx:id="ruta" prefHeight="25.0" prefWidth="551.0" GridPane.columnIndex="2" />
             <Button fx:id="primaryButton" onAction="#switchToSecondary" text="Buscar" GridPane.columnIndex="3" />
          </children>

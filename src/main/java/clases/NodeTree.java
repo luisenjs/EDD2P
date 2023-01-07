@@ -31,5 +31,10 @@ public class NodeTree<E> {
     public void addChild(E content){
         this.children.add(new Tree<>(content));
     }
+
+    @Override
+    public String toString() {
+        return content.toString();
+    }
     
 }

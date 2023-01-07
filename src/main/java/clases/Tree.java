@@ -29,4 +29,16 @@ public class Tree<E> {
         this.root = root;
     }
     
+    public int imprimir(){
+        int conteo = 0;
+        if (!this.isLeaf()) {
+            System.out.println("Hijos");
+            for (Tree<E> tree : this.getRoot().getChildren()) {
+                conteo += 1;
+            }
+        }else{
+            return 1;
+        }
+        return conteo;
+    }
 }
