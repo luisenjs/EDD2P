@@ -4,21 +4,34 @@ public class Archivo {
     private String name;
     private long size;
     private boolean directory;
-    private String path;
+    private String extension;
 
     public Archivo(String name, String path, long size) {
         this.name = name;
-        this.path = path;
+        this.extension = getExtension(path);
         this.size = size;
         this.directory = false;
     }
 
-    public String getPath() {
-        return path;
+    private String getExtension(String path) {
+        String extension = "";
+
+        int i = path.lastIndexOf('.');
+        int p = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'));
+
+        if (i > p) {
+            extension = path.substring(i + 1);
+        }
+        return extension;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    
+    public String getExtension() {
+        return extension;
+    }
+
+    public void setExtension(String path) {
+        this.extension = path;
     }
     
     public String getName() {
