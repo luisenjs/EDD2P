@@ -57,7 +57,7 @@ public class PrimaryController implements Initializable {
         explorador.getChildren().clear();
         if (directory != null) {
             ArrayList<String> arr = new ArrayList<>();
-            arr.add("pdf");
+//            arr.add("pdf");
             StackPane treemap = new StackPane();
 //            cbextensiones.getItems().addAll(colors.keySet());
             createTreemap(directory, 1000, 600, arr, treemap);
@@ -104,15 +104,21 @@ public class PrimaryController implements Initializable {
     }
 
     private Tree<Archivo> crearDirectorio(File file) {
+        System.out.println(file.getAbsolutePath());
         Tree<Archivo> tree_directory = new Tree(new Archivo(file.getName(), file.getPath(), file.length()));
         LinkedList<Tree<Archivo>> hijos = new LinkedList<>();
         if (file.isDirectory()) {
             tree_directory.getRoot().getContent().setDirectory(true);
             long totalSize = 0;
             for (File f : file.listFiles()) {
-                Tree<Archivo> temp = crearDirectorio(f);
-                hijos.add(temp);
-                totalSize += temp.getRoot().getContent().getSize();
+                try {
+
+                    Tree<Archivo> temp = crearDirectorio(f);
+                    hijos.add(temp);
+                    totalSize += temp.getRoot().getContent().getSize();
+                }catch(Exception e){
+                    System.out.println(e.getMessage());
+                }
             }
             tree_directory.getRoot().getContent().setSize(totalSize);
         }
