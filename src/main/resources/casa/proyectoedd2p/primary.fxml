@@ -15,30 +15,39 @@
    <children>
       <Label alignment="CENTER" text="TREE MAP">
          <font>
-            <Font size="24.0" />
+            <Font size="36.0" />
          </font>
       </Label>
       <GridPane alignment="CENTER" hgap="10.0" prefHeight="42.0" prefWidth="1071.0">
         <columnConstraints>
-            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="157.0" minWidth="3.0" prefWidth="125.0" />
-          <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="326.0" minWidth="0.0" prefWidth="49.0" />
-          <ColumnConstraints halignment="LEFT" hgrow="ALWAYS" maxWidth="866.0" minWidth="0.0" prefWidth="638.8666625976563" />
-            <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" maxWidth="866.0" minWidth="0.0" prefWidth="155.9333374023438" />
-            <ColumnConstraints fillWidth="false" halignment="CENTER" hgrow="ALWAYS" maxWidth="376.59993896484366" minWidth="10.0" prefWidth="126.86669921875011" />
+            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="188.0" minWidth="3.0" prefWidth="165.0" />
+          <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="326.0" minWidth="0.0" prefWidth="53.0" />
+          <ColumnConstraints halignment="LEFT" hgrow="ALWAYS" maxWidth="866.0" minWidth="0.0" prefWidth="644.0" />
+            <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" maxWidth="866.0" minWidth="0.0" prefWidth="77.0" />
+            <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" maxWidth="866.0" minWidth="10.0" prefWidth="100.0" />
         </columnConstraints>
         <rowConstraints>
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Label prefHeight="20.0" prefWidth="35.0" text="Ruta:" GridPane.columnIndex="1">
+            <Label prefHeight="27.0" prefWidth="178.0" text="Ruta:" GridPane.columnIndex="1">
                <font>
                   <Font size="14.0" />
                </font>
             </Label>
-            <Button fx:id="btnPath" mnemonicParsing="false" onAction="#selectPath" text="Seleccionar ruta" />
-            <TextField fx:id="ruta" prefHeight="25.0" prefWidth="551.0" GridPane.columnIndex="2" />
-            <Button fx:id="primaryButton" onAction="#switchToSecondary" text="Buscar" GridPane.columnIndex="4" />
-            <CheckBox fx:id="checkFiltro" mnemonicParsing="false" text="filtro" GridPane.columnIndex="3" />
+            <Button fx:id="btnPath" mnemonicParsing="false" onAction="#selectPath" text="Seleccionar ruta">
+               <font>
+                  <Font size="14.0" />
+               </font></Button>
+            <TextField fx:id="ruta" disable="true" prefHeight="25.0" prefWidth="551.0" GridPane.columnIndex="2">
+               <font>
+                  <Font size="14.0" />
+               </font></TextField>
+            <CheckBox fx:id="checkFiltro" mnemonicParsing="false" text="Filtro" GridPane.columnIndex="3">
+               <font>
+                  <Font size="14.0" />
+               </font></CheckBox>
+            <Button fx:id="btnExplorador" disable="true" mnemonicParsing="false" onAction="#explorar" text="Explorador" GridPane.columnIndex="4" />
          </children>
       </GridPane>
       <VBox fx:id="explorador" prefHeight="614.0" prefWidth="1000.0" style="-fx-background-color: white;" />

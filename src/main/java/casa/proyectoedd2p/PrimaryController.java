@@ -3,6 +3,9 @@ package casa.proyectoedd2p;
 import clases.Archivo;
 import clases.Tree;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,24 +14,33 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.ResourceBundle;
+import java.util.Stack;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 public class PrimaryController implements Initializable {
 
@@ -45,6 +57,7 @@ public class PrimaryController implements Initializable {
 //    private ChoiceBox cbextensiones;
     @FXML
     private CheckBox checkFiltro;
+    
     private static Tree<Archivo> directory;
 
     private static Rectangle temp_r = null;
@@ -52,8 +65,16 @@ public class PrimaryController implements Initializable {
     private static HashMap<String, Color> colors = new HashMap();
 
     private static HashMap<Integer, String> node_color = new HashMap();
+    
+    private final Stack<String> rutasanteriores = new Stack<>();
+
+    @FXML
+    private Button btnExplorador;
+
+    private static boolean popup;
 
     private void renderizarTreemap() {
+        btnExplorador.setDisable(false);
         explorador.getChildren().clear();
         if (directory != null) {
             ArrayList<String> arr = new ArrayList<>();
@@ -67,6 +88,7 @@ public class PrimaryController implements Initializable {
                 createTreemap(directory, 1000, 600, arr, treemap);
             });
             checkFiltro.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                popup = newValue;
                 if (newValue) {
                     treemap.setOnMouseMoved(e -> {
                         changeColor(temp_r, treemap);
@@ -82,16 +104,18 @@ public class PrimaryController implements Initializable {
 
     @FXML
     private void switchToSecondary() {
-        System.out.println("Hola");
+        
     }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        ruta.setDisable(true);
+        
     }
 
     @FXML
     private void selectPath() {
+        checkFiltro.setSelected(false);
+        btnExplorador.setDisable(true);
         DirectoryChooser fc = new DirectoryChooser();
         File selecedFile = fc.showDialog(null);
         if (selecedFile != null) {
@@ -193,6 +217,15 @@ public class PrimaryController implements Initializable {
         if (children.isEmpty()) {
             rect.setOnMouseEntered(eh -> {
                 temp_r = rect;
+                double mouseX = eh.getScreenX();
+                double mouseY = eh.getScreenY();
+                if (!popup) {
+                    Stage stage = abrirPopup(directorio, mouseX, mouseY);
+                    rect.setOnMouseExited(me -> {
+                        cerrarPopup(stage);
+                    });
+
+                }
             });
             rect.setOnMouseExited(eh -> {
                 for (int i : node_color.keySet()) {
@@ -218,17 +251,132 @@ public class PrimaryController implements Initializable {
                 y += childHeight;
             }
         }
-        if (numChildren > 0) {
-            String name = directorio.getRoot().getContent().getName(); //1073741824
-            double size = directorio.getRoot().getContent().getSize() / (1024 * 1024);
-            String text = String.format("%s - %.2f MB", name, size);
-            Label lb = new Label(text);
-            lb.setStyle("-fx-font-size: 15");
-            stackPane.getChildren().add(stackPane.getChildren().size(), lb);
-            lb.setWrapText(true);
-            lb.setTranslateX(initialX + 5);
-            lb.setTranslateY(initialY);
+//        if (numChildren > 0) {
+//            String name = directorio.getRoot().getContent().getName(); //1073741824
+//            double size = directorio.getRoot().getContent().getSize() / (1024 * 1024);
+//            String text = String.format("%s - %.2f MB", name, size);
+//            Label lb = new Label(text);
+//            lb.setStyle("-fx-font-size: 15");
+//            stackPane.getChildren().add(stackPane.getChildren().size(), lb);
+//            lb.setWrapText(true);
+//            lb.setTranslateX(initialX + 5);
+//            lb.setTranslateY(initialY);
+//        }
+    }
+    
+    private void buscar(String path, Button back, VBox explorador) {
+        if (!rutasanteriores.isEmpty()) {
+            back.setDisable(false);
+        } else {
+            back.setDisable(true);
         }
+        explorador.getChildren().clear();
+        File f = new File(path);
+        String[] archivos = f.list();
+        try {
+            for (String archivo : archivos) {
+                Label nombrearchivo = new Label(archivo);
+                nombrearchivo.setFont(new Font("System", 14));
+                String[] datos = archivo.split("\\.");
+                String extension = "carpeta";
+                try {
+                    extension = datos[1];
+                } catch (RuntimeException e) {
+                }
+                ImageView imgview = new ImageView();
+                try ( FileInputStream input = new FileInputStream("src/main/resources/imagenes/" + extension + ".png")) {
+                    Image img = new Image(input);
+                    imgview.setImage(img);
+                    imgview.setFitHeight(20);
+                    imgview.setFitWidth(20);
+                } catch (FileNotFoundException e) {
+                    try ( FileInputStream input = new FileInputStream("src/main/resources/imagenes/unknownfile.png")) {
+                        Image img = new Image(input);
+                        imgview.setImage(img);
+                        imgview.setFitHeight(20);
+                        imgview.setFitWidth(20);
+                    } catch (IOException ex) {
+                    }
+                } catch (IOException ex) {
+                }
+                HBox archivoBox = new HBox(imgview, nombrearchivo);
+                archivoBox.setOnMouseClicked(mc -> {
+                    rutasanteriores.push(path);
+                    buscar(path + "/" + nombrearchivo.getText(), back, explorador);
+                });
+                archivoBox.setSpacing(5);
+                archivoBox.setPadding(new Insets(3, 3, 3, 3));
+                explorador.getChildren().add(archivoBox);
+            }
+        } catch (RuntimeException e) {
+
+        }
+    }
+
+    @FXML
+    void explorar() {
+        Stage stage = new Stage();
+        VBox root = new VBox();
+        root.setAlignment(Pos.CENTER);
+        ScrollPane contedido = new ScrollPane();
+        VBox exploBox = new VBox();
+        exploBox.setStyle("-fx-background-color: WHITE");
+        exploBox.setPadding(new Insets(5, 5, 5, 5));
+        Button back = new Button("Volver");
+        back.setOnMouseClicked(mc -> {
+            buscar(rutasanteriores.pop(), back, exploBox);
+        });
+        buscar(ruta.getText(), back, exploBox);
+        contedido.setContent(exploBox);
+        root.getChildren().addAll(back, contedido);
+        root.setSpacing(5);
+        root.setPadding(new Insets(10, 10, 10, 10));
+        Scene scene = new Scene(root, 500, 400);
+        stage.setResizable(false);
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    private static Stage abrirPopup(Tree<Archivo> directorio, double mouseX, double mouseY) {
+        Stage stage = new Stage();
+        VBox root = new VBox();
+        root.setPadding(new Insets(10, 10, 10, 10));
+        root.setAlignment(Pos.CENTER);
+        Label lbarchivo = new Label("Nombre: " + directorio.getRoot().getContent().getName());
+        lbarchivo.setFont(Font.font("System", 14));
+        lbarchivo.setWrapText(true);
+        double peso = (double)Math.round(directorio.getRoot().getContent().getSize()/2048 * 100d) / 100d;
+        Label lbpeso = new Label("Peso: " + String.valueOf(peso) + "MB");
+        lbpeso.setFont(Font.font("System", 14));
+        lbpeso.setWrapText(true);
+        ImageView imgview = new ImageView();
+                try ( FileInputStream input = new FileInputStream("src/main/resources/imagenes/" + directorio.getRoot().getContent().getExtension() + ".png")) {
+                    Image img = new Image(input);
+                    imgview.setImage(img);
+                    imgview.setFitHeight(50);
+                    imgview.setFitWidth(50);
+                } catch (FileNotFoundException e) {
+                    try ( FileInputStream input = new FileInputStream("src/main/resources/imagenes/unknownfile.png")) {
+                        Image img = new Image(input);
+                        imgview.setImage(img);
+                        imgview.setFitHeight(50);
+                        imgview.setFitWidth(50);
+                    } catch (IOException ex) {
+                    }
+                } catch (IOException ex) {
+                }
+        root.getChildren().addAll(lbarchivo, lbpeso, imgview);
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
+        stage.setResizable(false);
+        stage.setX(mouseX + 20);
+        stage.setY(mouseY - 100);
+        return stage;
+    }
+
+    private static void cerrarPopup(Stage s) {
+        s.close();
     }
 
 }
